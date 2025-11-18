@@ -32,15 +32,34 @@ RSpec.describe Api::WeatherController, type: :controller do
         include_examples 'renders json body', ({ 'error' => 'weather_api_error' })
       end
 
-      context 'when location is missing (edge negative case)' do
+      context 'when location is missing' do
         before do
-          svc = double(fetch: { error: 'invalid_location' })
-          allow(WeatherService).to receive(:new).and_return(svc)
+          expect(WeatherService).not_to receive(:new)
           get :show, params: {}
         end
 
-        include_examples 'responds with bad_gateway'
-        include_examples 'renders json body', ({ 'error' => 'invalid_location' })
+        it 'responds with 422 Unprocessable Entity' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'renders a Location Parameter is missing error JSON' do
+          expect(JSON.parse(response.body)).to eq({ 'error' => 'Location Parameter is missing' })
+        end
+      end
+
+      context 'when location is an empty string' do
+        before do
+          expect(WeatherService).not_to receive(:new)
+          get :show, params: { location: '' }
+        end
+
+        it 'responds with 422 Unprocessable Entity' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'renders a Location Parameter is missing error JSON' do
+          expect(JSON.parse(response.body)).to eq({ 'error' => 'Location Parameter is missing' })
+        end
       end
     end
 
@@ -69,7 +88,7 @@ RSpec.describe Api::WeatherController, type: :controller do
           payload = { 'tempMax' => 21, 'tempMin' => 11, 'tempCurrent' => 16 }
           svc = double(fetch: { data: payload, cached: true })
           allow(WeatherService).to receive(:new).and_return(svc)
-          get :show, params: { id: 'Bangalore' }
+          get :show, params: { location: 'Bangalore' }
         end
 
         include_examples 'responds with ok'
