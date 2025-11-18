@@ -2,6 +2,8 @@
 
 A small Rails API that exposes weather details for a given location. This README documents the newly added functionality (Task 1), what changed, how to configure and run the service, the API contract, error cases, caching and rate-limiting behavior, and pointers for testing and production hardening.
 
+Postman Collection Link: https://documenter.getpostman.com/view/50170976/2sB3Wwrxpn
+
 Table of contents
 - Overview
 - Main changes (files added/modified)
